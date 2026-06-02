@@ -1,43 +1,33 @@
-# KONG API Gateway Setup
+Este submódulo estabelece a camada de controle de tráfego e observabilidade centralizada do ecossistema fitness, operando o roteamento das requisições para os microsserviços e a coleta de dados de performance.
 
-## Overview
-This project sets up a KONG API Gateway to serve as a Backend for Frontend (BFF) service, routing requests to various backend services such as workout, nutrition, and authentication services.
+A arquitetura do gateway foi projetada para unificar o ponto de entrada da aplicação tanto no ambiente de desenvolvimento local quanto nos servidores de homologação em nuvem. O componente principal é o Kong API Gateway, que recebe todas as requisições externas na porta oitocentos e gerencia os redirecionamentos internos baseando-se nos caminhos declarados pelas rotas. Integrado a ele, o sistema de monitoramento utiliza o Prometheus para coletar métricas de saúde da aplicação e o Grafana para gerar as séries temporais analíticas do tráfego.
 
-## Project Structure
-```
-kong-api-gateway
-├── docker-compose.yml
-├── kong.yml
-├── Dockerfile
-└── README.md
-```
+A estrutura de isolamento e entrega contínua do gateway foi configurada no Render seguindo rigorosamente a divisão por ambientes e ramificações de código do projeto. O ambiente titantrack-kong-dev monitora ativamente a branch develop do repositório, mantendo o Swagger e os endpoints de teste totalmente liberados para a equipe. O ambiente titantrack-kong-homol monitora a branch master principal, aplicando as restrições de segurança de produção, o que inclui a desativação da rota de documentação api-docs para bloquear acessos externos não autorizados.
 
-## Steps to Set Up the KONG API Gateway as a BFF Service:
+Para a inicialização do ecossistema de desenvolvimento integrado na máquina local, o Docker Compose é utilizado para erguer o gateway, os microsserviços bff-service, auth-service, workout-service e nutrition-service, além dos bancos de dados PostgreSQL e MongoDB. O comando de execução deve ser rodado a partir do diretório raiz.
 
-1. **Create Project Directory**: Create a new directory named `kong-api-gateway`.
+docker compose up -d
 
-2. **Create `docker-compose.yml`**: Define the services for KONG and any required databases. Specify the KONG image and any environment variables needed for configuration.
+A validação do roteamento do Kong em ambiente de desenvolvimento é realizada acessando a URL local mapeada com o prefixo configurado para o microsserviço principal.
 
-3. **Create `kong.yml`**: Configure the KONG API Gateway with routes and services. Define upstream services for workout, nutrition, and auth services. Include any necessary plugins for authentication or rate limiting.
+http://localhost:8000/api/docs
 
-4. **Create `Dockerfile`**: If custom configurations or plugins are needed, create a Dockerfile to build a custom KONG image.
+Para a camada de observabilidade, o arquivo de configuração do Prometheus local, nomeado como prometheus.yml, foi estruturado para buscar as métricas geradas na nuvem de homologação a cada quinze segundos através do endpoint seguro de telemetria.
 
-5. **Create `README.md`**: Document the setup process, including how to run the API Gateway, configure routes, and any other relevant information.
+global:
+scrape_interval: 15s
 
-6. **Install Docker and Docker Compose**: Ensure that Docker and Docker Compose are installed on your machine.
+scrape_configs:
 
-7. **Run Docker Compose**: Use the command `docker-compose up` to start the KONG API Gateway and any other defined services.
+job_name: 'fastapi-homologacao'
+metrics_path: '/metrics'
+scheme: 'https'
+static_configs:
 
-8. **Test the API Gateway**: After starting the services, test the API Gateway to ensure it correctly routes requests to the backend services.
+targets: ['titantrack-bfff-homol.onrender.com']
 
-## Usage
-To run the KONG API Gateway, navigate to the project directory and execute:
-```
-docker-compose up
-```
+A conexão de rede no painel do Grafana local em http://localhost:3000 utiliza a URL interna de comunicação do Docker Desktop para alcançar os dados coletados no host do Windows.
 
-## Configuration
-Refer to the `kong.yml` file for details on routes, services, and plugins configured for the API Gateway.
+http://host.docker.internal:9090
 
-## Additional Information
-For any issues or contributions, please refer to the project's issue tracker or contact the maintainers.
+O resultado prático da integração de monitoramento gerou os painéis analíticos que processam o volume de tráfego por métodos HTTP e códigos de status, cujos registros visuais estão salvos neste diretório de documentação sob os nomes de arquivo dashboard-metricas.png e dashboard-numeros.png.
