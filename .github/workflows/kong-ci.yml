@@ -16,7 +16,7 @@ jobs:
 
       - name: Validar sintaxe do Kong YAML
         run: |
-          docker run --rm -v "$(pwd):/workspace" kong:latest kong config parse /workspace/kong.yml
+          docker run --rm -e KONG_DATABASE=off -v "$(pwd):/workspace" kong:latest kong config parse /workspace/kong.yml
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
