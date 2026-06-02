@@ -1,4 +1,4 @@
-name: Kong CI/CD Pipeline
+name: Kong CI Pipeline
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
 
       - name: Validar sintaxe do Kong YAML
         run: |
-          docker run --rm -v "$(pwd):/workspace" kong:3.4-alpine kong config parse /workspace/kong.yml
+          docker run --rm -v "$(pwd):/workspace" kong:latest kong config parse /workspace/kong.yml
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
