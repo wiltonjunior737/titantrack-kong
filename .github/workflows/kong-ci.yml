@@ -1,0 +1,29 @@
+name: Kong CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Validar sintaxe do Kong YAML
+        run: |
+          docker run --rm -v "$(pwd):/workspace" kong:3.4-alpine kong config parse /workspace/kong.yml
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build da Imagem Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: kong-gateway:latest
