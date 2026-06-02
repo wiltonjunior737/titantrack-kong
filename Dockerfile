@@ -10,8 +10,10 @@ ENV KONG_MEM_CACHE_SIZE=32m
 
 ENV KONG_PROXY_LISTEN="0.0.0.0:8000, 0.0.0.0:8443 ssl"
 
+ENV KONG_NGINX_WORKER_PROCESSES=1
 ENV KONG_MEM_CACHE_SIZE=32m
+ENV KONG_PROXY_BUFFER_SIZE=16k
 
 EXPOSE 8000 8443
 
-CMD ["kong", "docker-start", "--nginx-worker-processes", "1", "--nginx-proxy-buffer-size", "16k"]
+CMD ["kong", "docker-start"]
