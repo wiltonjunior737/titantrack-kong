@@ -3,15 +3,16 @@ _transform: true
 
 services:
   - name: bff-service
-    url: http://bff-service:8000
+    url: https://titantrack-wgv3.onrender.com
     routes:
-      - name: bff-route
+      - name: bff-routes
         paths:
-          - /        
-        strip_path: false 
+          - /api
 
 plugins:
-  - name: rate-limiting
+  - name: prometheus
     config:
-      second: 5
-      hour: 1000
+      per_consumer: false
+      status_code_metrics: true
+      latency_metrics: true
+      bandwidth_metrics: true
