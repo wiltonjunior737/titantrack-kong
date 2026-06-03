@@ -9,12 +9,15 @@ services:
         paths:
           - /api/auth       
           - /api/aluno      
+          - /api/docs
         strip_path: false
 
-routes:
-  - name: kong-metrics-route
-    paths:
-      - /api/metrics
+  - name: kong-prometheus-service
+    url: http://localhost:8001
+    routes:
+      - name: kong-metrics-route
+        paths:
+          - /api/metrics
 
 plugins:
   - name: prometheus
