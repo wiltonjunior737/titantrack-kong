@@ -43,6 +43,29 @@ O ecossistema TitanTrack é composto por repositórios independentes que operam 
   * Desenvolvimento (DEV): `https://titantrack-wgv3.onrender.com`
   * Homologação (HOMOL): `https://titantrack-bfff-homol.onrender.com`
 
+```http
+POST /auth
+```
+
+Responsável pela validação de credenciais e emissão de tokens.
+
+## Gerenciamento de Alunos
+
+```http
+GET /aluno
+POST /aluno
+```
+
+Responsável pelo cadastro, consulta e gerenciamento de alunos.
+
+## Documentação
+
+```http
+GET /docs
+```
+
+Interface Swagger/OpenAPI disponibilizada pelo FastAPI.
+
 ---
 
 ## 🚀 Análise Técnica de CI/CD (Integração e Entrega Contínua)
@@ -63,6 +86,11 @@ O deploy é desacoplado e reativo. Conforme a branch de origem, as regras de neg
 
 * **Ambiente de Desenvolvimento (Branch `develop`):** Realiza o deploy para a nuvem de DEV. O arquivo `kong.yml` aponta para o BFF de desenvolvimento e mantém a documentação interativa do **Swagger Habilitada** em `/api/docs` para consumo ágil da equipe.
 * **Ambiente de Homologação (Branch `master`):** Realiza o deploy para o ambiente de homologação estável. Para segurança e conformidade, as rotas do Swagger são **Desabilitadas**, retornando `404 Not Found`.
+| Recurso | Desenvolvimento | Homologação |
+|----------|----------|----------|
+| URL | `titantrack-wgv3.onrender.com` | `titantrack-bfff-homol.onrender.com` |
+| Swagger | Disponível | Restrito/Bloqueado |
+| Banco de Dados | Ambiente de testes | Ambiente de homologação |
 
 ---
 
@@ -101,3 +129,138 @@ As requisições de teste e validação de arquitetura podem ser disparadas cont
 * **Método:** `GET`
 * **URL:** `https://titantrack-kong-dev.onrender.com/docs`
 * **Resposta Esperada:** Status `200 OK` e a liberação de outras novas rotas.
+
+---
+
+# 🛠️ Execução Local
+
+## Pré-requisitos
+
+- Python 3.10+
+- Virtual Environment (venv)
+
+## Clonando o Projeto
+
+```bash
+git clone <repositorio>
+cd bff-service
+```
+
+## Criando o Ambiente Virtual
+
+### Windows
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+### Linux / macOS
+
+```bash
+python -m venv venv
+source venv/bin/activate
+```
+
+## Instalando Dependências
+
+```bash
+pip install -r requirements.txt
+```
+
+## Executando a Aplicação
+
+```bash
+uvicorn app.main:app --reload --port 8000
+```
+
+A aplicação ficará disponível em:
+
+```text
+http://localhost:8000
+```
+
+Documentação Swagger:
+
+```text
+http://localhost:8000/docs
+```
+
+---
+
+# 🧪 Testes de API
+
+## Métricas
+
+**Método**
+
+```http
+POST /metrics
+```
+
+**URL**
+
+```text
+https://titantrack-wgv3.onrender.com/metrics
+```
+
+## Consulta do Ambiente
+
+**Método**
+
+```http
+GET /docs
+```
+
+**URL**
+
+```text
+https://titantrack-wgv3.onrender.com/docs
+```
+
+**Resposta Esperada**
+
+```http
+200 OK
+```
+
+Retorno contendo os registros cadastrados no sistema.
+
+---
+
+## Consulta do Ambiente
+
+**Método**
+
+```http
+GET /docs
+```
+
+**URL**
+
+```text
+https://titantrack-wgv3.onrender.com/docs
+```
+
+**Resposta Esperada**
+
+```http
+200 OK
+```
+
+Retorno contendo os registros cadastrados no sistema.
+
+---
+
+# 📚 Tecnologias Utilizadas
+
+- Python
+- FastAPI
+- Uvicorn
+- Pytest
+- Selenium
+- GitHub Actions
+- SonarCloud
+- Kong API Gateway
+- Grafana Cloud
+- Render
