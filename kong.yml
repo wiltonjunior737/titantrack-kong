@@ -2,15 +2,22 @@ _format_version: "3.0"
 _transform: true
 
 services:
-  - name: bff-service-dev
-    url: https://titantrack-bfff-dev.onrender.com
+  - name: bff-service-homol
+    url: https://titantrack-bfff-homol.onrender.com
     routes:
-      - name: bff-routes-negocio-dev
+      - name: bff-routes-negocio
         paths:
           - /api/auth       
           - /api/aluno      
-          - /api/metrics    
           - /api/docs
+        strip_path: false
+
+  - name: kong-prometheus-service
+    url: http://localhost:8001
+    routes:
+      - name: kong-metrics-route
+        paths:
+          - /api/metrics
 
 plugins:
   - name: prometheus

@@ -1,33 +1,98 @@
-Este submódulo estabelece a camada de controle de tráfego e observabilidade centralizada do ecossistema fitness, operando o roteamento das requisições para os microsserviços e a coleta de dados de performance.
+# 🐾 TitanTrack AI — Barramento de Serviços e Arquitetura Global de Microsserviços
 
-A arquitetura do gateway foi projetada para unificar o ponto de entrada da aplicação tanto no ambiente de desenvolvimento local quanto nos servidores de homologação em nuvem. O componente principal é o Kong API Gateway, que recebe todas as requisições externas na porta oitocentos e gerencia os redirecionamentos internos baseando-se nos caminhos declarados pelas rotas. Integrado a ele, o sistema de monitoramento utiliza o Prometheus para coletar métricas de saúde da aplicação e o Grafana para gerar as séries temporais analíticas do tráfego.
+Bem-vindo à documentação central do **TitanTrack AI**! Este repositório concentra a especificação arquitetural, os barramentos de roteamento lógico de APIs e os manuais operacionais do ecossistema. O projeto foi integralmente projetado sob um ecossistema **Multirrepo de Microsserviços**, implementando esteiras modernas de Integração e Entrega Contínua (CI/CD) e Observabilidade centralizada na nuvem. Vale-se pontuar que o sistema propriamente originou-se a partir de um auxílio à profissionais relacionados à engenharia do corpo (personais, nutricionistas, ademais).
 
-A estrutura de isolamento e entrega contínua do gateway foi configurada no Render seguindo rigorosamente a divisão por ambientes e ramificações de código do projeto. O ambiente titantrack-kong-dev monitora ativamente a branch develop do repositório, mantendo o Swagger e os endpoints de teste totalmente liberados para a equipe. O ambiente titantrack-kong-homol monitora a branch master principal, aplicando as restrições de segurança de produção, o que inclui a desativação da rota de documentação api-docs para bloquear acessos externos não autorizados.
+---
 
-Para a inicialização do ecossistema de desenvolvimento integrado na máquina local, o Docker Compose é utilizado para erguer o gateway, os microsserviços bff-service, auth-service, workout-service e nutrition-service, além dos bancos de dados PostgreSQL e MongoDB. O comando de execução deve ser rodado a partir do diretório raiz.
+## 🏗️ Evolução da Arquitetura: Monolito ➡️ Microsserviços
 
-docker compose up -d
+A refatoração e migração do antigo modelo monolítico local para uma infraestrutura distribuída em nuvem teve como objetivos fundamentais:
+* **Desacoplamento de Domínios:** Ciclos de desenvolvimento, testes e entrega completamente independentes entre a camada de Gateway e as regras de negócio.
+* **Escalabilidade Isolada:** Capacidade de escalar serviços críticos de forma independente no provedor de nuvem, reduzindo custos e otimizando recursos.
+* **Segurança Perimetral e Isolamento:** Barramento centralizado de segurança (Reverse Proxy) focado em mitigar o vazamento de credenciais e o mapeamento malicioso de rotas internas.
 
-A validação do roteamento do Kong em ambiente de desenvolvimento é realizada acessando a URL local mapeada com o prefixo configurado para o microsserviço principal.
+---
 
-http://localhost:8000/api/docs
+## 🗺️ Diagrama de Processo Global (BPMN)
 
-Para a camada de observabilidade, o arquivo de configuração do Prometheus local, nomeado como prometheus.yml, foi estruturado para buscar as métricas geradas na nuvem de homologação a cada quinze segundos através do endpoint seguro de telemetria.
+O fluxo operacional e o ciclo de vida de uma requisição HTTP dentro do ecossistema **TitanTrack AI** são controlados dinamicamente pelas políticas de ambiente do Gateway. A modelagem abaixo, desenvolvida no *Bizagi Modeler*, detalha as raias de responsabilidade e a árvore de decisão perimetral:
 
-global:
-scrape_interval: 15s
+![Mapeamento de Processos TitanTrack AI](Bizagi.png)
 
-scrape_configs:
+### 📌 Análise de Caminhos Lógicos do Diagrama:
+* **Fluxo Padrão (Business as Usual):** O usuário faz a requisição através do *Cliente (Front-End)* ➔ O *Gateway de Entrada (Kong)* intercepta o tráfego ➔ A rota solicitada **não** é `/docs` ➔ A requisição é tunelada para a *Camada de Serviços (Microsserviços)* ➔ O **BFF realiza o processamento** e devolve o evento final para o encerramento do ciclo com a *Resposta Entregue*.
+* **Desvio Condicional de Segurança (Isolamento de Documentação):** Se a rota solicitada for a raiz de documentação interativa (`/docs`), o Gateway avalia o escopo do ambiente ativo:
+  * **Se Ambiente for HOMOL (Sim):** O fluxo é retido imediatamente na camada perimetral de rede, acionando o componente de segurança para **Retornar 404 Not Found**, encerrando a conexão sem onerar os microsserviços internos.
+  * **Se Ambiente for DEV (Não/Outro):** O Gateway valida o acesso, avança para a etapa de **Exibir Swagger** e encerra o fluxo com sucesso para consumo dos desenvolvedores.
 
-job_name: 'fastapi-homologacao'
-metrics_path: '/metrics'
-scheme: 'https'
-static_configs:
+---
 
-targets: ['titantrack-bfff-homol.onrender.com']
+## 🗂️ Inventário de Repositórios e Serviços
 
-A conexão de rede no painel do Grafana local em http://localhost:3000 utiliza a URL interna de comunicação do Docker Desktop para alcançar os dados coletados no host do Windows.
+O ecossistema TitanTrack é composto por repositórios independentes que operam de forma isolada e integrada:
 
-http://host.docker.internal:9090
+### 1. `titantrack-kong` (Camada de Infraestrutura)
+* **Papel:** Centralização de roteamento lógico e ativação de políticas de rede via Kong Gateway em modo declarativo DB-less (`kong.yml`).
+* **Hospedagem Render:** * Desenvolvimento (DEV): `https://titantrack-kong-dev.onrender.com`
+  * Homologação (HOMOL): `https://titantrack-kong-homol.onrender.com`
 
-O resultado prático da integração de monitoramento gerou os painéis analíticos que processam o volume de tráfego por métodos HTTP e códigos de status, cujos registros visuais estão salvos neste diretório de documentação sob os nomes de arquivo dashboard-metricas.png e dashboard-numeros.png.
+### 2. `titantrack-bff` (Camada de Core Application)
+* **Papel:** Microsserviço responsável pela inteligência de negócio, persistência, controle de alunos e autenticação.
+* **Tecnologias:** Python, FastAPI.
+* **Hospedagem Render:**
+  * Desenvolvimento (DEV): `https://titantrack-bfff-dev.onrender.com`
+  * Homologação (HOMOL): `https://titantrack-bfff-homol.onrender.com`
+
+---
+
+## 🚀 Análise Técnica de CI/CD (Integração e Entrega Contínua)
+
+Toda a esteira de entrega de código é governada pelo **GitHub Actions**, disparando automações a partir das ramificações do fluxo de Git Flow.
+
+[Push / Pull Request] ➔ [Análise de Qualidade] ➔ [Isolamento de Branch] ➔ [Deploy Reativo Cloud]
+
+
+### 1. Continuous Integration (CI) e Quality Gate
+* **Gatilho:** Qualquer push ou abertura de Pull Request direcionado às branches `develop` ou `master`.
+* **Métricas de Qualidade (SonarCloud):** Integração profunda com o painel do SonarCloud. A esteira realiza varredura estática completa (SAST), garantindo pontuação máxima (**Nota A**) nos quesitos de *Security*, *Reliability* e *Maintainability*. 
+
+> 💡 **Nota de Infraestrutura:** O status geral do Quality Gate em arquivos puramente configurativos e declarativos com menos de 20 linhas consta nativamente como `Not computed` pela plataforma Sonar para prevenir falsos negativos, mantendo as checagens e notas de segurança válidas e aprovadas.
+
+### 2. Continuous Deployment (CD) e Isolamento de Ambientes
+O deploy é desacoplado e reativo. Conforme a branch de origem, as regras de negócio de segurança mudam estritamente:
+
+* **Ambiente de Desenvolvimento (Branch `develop`):** Realiza o deploy para a nuvem de DEV. O arquivo `kong.yml` aponta para o BFF de desenvolvimento e mantém a documentação interativa do **Swagger Habilitada** em `/api/docs` para consumo ágil da equipe.
+* **Ambiente de Homologação (Branch `master`):** Realiza o deploy para o ambiente de homologação estável. Para segurança e conformidade, as rotas do Swagger são **Desabilitadas**, retornando `404 Not Found`.
+
+---
+
+## 📊 Arquitetura de Observabilidade Centralizada
+
+Para monitorar o tráfego e o motor assíncrono do Gateway sem onerar o consumo de disco local na nuvem, desenhamos uma estratégia de telemetria baseada em *Push Memory* via **Grafana Cloud**:
+
+1. **Exposição via Prometheus:** O plugin nativo do Prometheus foi acoplado ao barramento interno do Kong, expondo contadores reais no endpoint isolado `/api/metrics`.
+2. **Data Source Infinity (Grafana Cloud):** O dashboard consome os dados em tempo real utilizando o conector *Infinity* operando com Frontend Parser. Essa abordagem contorna proxies corporativos e restrições de rede.
+3. **Mapeamento de Concorrência:** O painel monitora a saúde interna do motor assíncrono através das métricas de timers:
+   * `timers.running`: Quantidade de tarefas executadas simultaneamente em segundo plano pelas políticas do gateway.
+   * `timers.pending`: Fila de espera de processos aguardando alocação de CPU.
+
+---
+
+## 🧪 Roteiro de Validação End-to-End (E2E)
+
+As requisições de teste e validação de arquitetura podem ser disparadas contra o Gateway de homologação (`https://titantrack-kong-homol.onrender.com`):
+
+### 1. Teste de Rota de Negócio e Conectividade do BFF
+* **Método:** `POST` / `GET`
+* **URL:** `https://titantrack-kong-homol.onrender.com/api/auth`
+* **Resposta Esperada:** Status `200 OK` ou retorno JSON estruturado vinda do FastAPI (`{"detail":"Not Found"}`), provando que o Kong interceptou a requisição e estabeleceu o túnel com o back-end com sucesso.
+
+### 2. Teste de Bloqueio do Swagger (Segurança de Homologação)
+* **Método:** `GET`
+* **URL:** `https://titantrack-kong-homol.onrender.com/api/docs`
+* **Resposta Esperada:** Status `404 Not Found` controlado (`{"detail":"Not Found"}`), evidenciando que a documentação foi devidamente isolada e protegida contra varreduras externas no ambiente de homologação.
+
+### 3. Coleta de Telemetria (Métricas do Gateway)
+* **Método:** `GET`
+* **URL:** `https://titantrack-kong-homol.onrender.com/api/metrics`
+* **Resposta Esperada:** Dump de metadados do barramento contendo o status de concorrência (`"pending": X, "running": Y`), indicando que o Prometheus está coletando a performance interna do ecossistema.
