@@ -2,10 +2,10 @@ _format_version: "3.0"
 _transform: true
 
 services:
-  - name: bff-service
+  - name: bff-service-dev
     url: https://titantrack-wgv3.onrender.com
     routes:
-      - name: bff-routes
+      - name: bff-routes-dev
         paths:
           - /api
 
