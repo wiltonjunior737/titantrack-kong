@@ -26,3 +26,5 @@ plugins:
       status_code_metrics: true
       latency_metrics: true
       bandwidth_metrics: true
+
+# Forçando o calculo do quality gate na develop
