@@ -19,7 +19,7 @@ jobs:
       - name: Logar no Docker Hub
         uses: docker/login-action@v3
         with:
-          username: wiltonjunior737
+          username: guilhermewoloszyn
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Setup Docker Buildx
@@ -31,8 +31,8 @@ jobs:
           context: .
           push: true
           tags: |
-            wiltonjunior737/titantrack-kong:latest
-            wiltonjunior737/titantrack-kong:${{ github.sha }}
+            guilhermewoloszyn/titantrack-kong:latest
+            guilhermewoloszyn/titantrack-kong:${{ github.sha }}
 
       - name: Deploy para DEV no Render
         if: github.ref == 'refs/heads/develop'
