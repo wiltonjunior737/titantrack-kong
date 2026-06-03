@@ -18,3 +18,5 @@ plugins:
       status_code_metrics: true
       latency_metrics: true
       bandwidth_metrics: true
+
+      # Forçar cálculo do quality gate
