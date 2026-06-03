@@ -2,12 +2,14 @@ _format_version: "3.0"
 _transform: true
 
 services:
-  - name: bff-service
-    url: https://titantrack-wgv3.onrender.com
+  - name: bff-service-homol
+    url: https://titantrack-bff-homol.onrender.com
     routes:
-      - name: bff-routes
+      - name: bff-routes-negocio
         paths:
-          - /api
+          - /api/auth       
+          - /api/aluno      
+          - /api/metrics    
 
 plugins:
   - name: prometheus
