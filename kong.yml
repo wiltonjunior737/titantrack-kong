@@ -3,7 +3,7 @@ _transform: true
 
 services:
   - name: bff-service-homol
-    url: https://titantrack-bfff-homol.onrender.com
+    url: https://titantrack-wgv3.onrender.com
     routes:
       - name: bff-routes-negocio
         paths:
