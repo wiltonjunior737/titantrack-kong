@@ -9,7 +9,12 @@ services:
         paths:
           - /api/auth       
           - /api/aluno      
-          - /api/metrics    
+        strip_path: false
+
+routes:
+  - name: kong-metrics-route
+    paths:
+      - /api/metrics
 
 plugins:
   - name: prometheus
@@ -18,5 +23,3 @@ plugins:
       status_code_metrics: true
       latency_metrics: true
       bandwidth_metrics: true
-
-      # Forçar cálculo do quality gate
