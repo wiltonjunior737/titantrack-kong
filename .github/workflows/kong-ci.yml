@@ -12,17 +12,18 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  
-          
+          fetch-depth: 0
+
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-and-deploy:
-    needs: sonarcloud 
+    needs: sonarcloud
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -51,10 +52,8 @@ jobs:
 
       - name: Deploy para DEV no Render
         if: github.ref == 'refs/heads/develop'
-        run: |
-          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_DEV }}"
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_DEV }}"
 
       - name: Deploy para HOMOL no Render
         if: github.ref == 'refs/heads/master'
-        run: |
-          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_HOMOL }}"
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_HOMOL }}"
