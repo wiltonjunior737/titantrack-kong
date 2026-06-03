@@ -2,15 +2,15 @@ _format_version: "3.0"
 _transform: true
 
 services:
-  - name: bff-service-dev  
-    url: https://titantrack-bfff-dev.onrender.com  
+  - name: bff-service-dev
+    url: https://titantrack-bfff-dev.onrender.com
     routes:
       - name: bff-routes-negocio-dev
         paths:
           - /api/auth       
           - /api/aluno      
           - /api/metrics    
-          - /api/docs  
+          - /api/docs
 
 plugins:
   - name: prometheus
@@ -20,4 +20,4 @@ plugins:
       latency_metrics: true
       bandwidth_metrics: true
 
-# Forçando o cálculo do quality gate
+# Forçando o calculo do quality gate na develop
