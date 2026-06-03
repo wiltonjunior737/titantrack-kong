@@ -40,7 +40,7 @@ O ecossistema TitanTrack é composto por repositórios independentes que operam 
 * **Papel:** Microsserviço responsável pela inteligência de negócio, persistência, controle de alunos e autenticação.
 * **Tecnologias:** Python, FastAPI.
 * **Hospedagem Render:**
-  * Desenvolvimento (DEV): `https://titantrack-bfff-dev.onrender.com`
+  * Desenvolvimento (DEV): `https://titantrack-wgv3.onrender.com`
   * Homologação (HOMOL): `https://titantrack-bfff-homol.onrender.com`
 
 ---
@@ -80,7 +80,7 @@ Para monitorar o tráfego e o motor assíncrono do Gateway sem onerar o consumo 
 
 ## 🧪 Roteiro de Validação End-to-End (E2E)
 
-As requisições de teste e validação de arquitetura podem ser disparadas contra o Gateway de homologação (`https://titantrack-kong-homol.onrender.com`):
+As requisições de teste e validação de arquitetura podem ser disparadas contra o Gateway de homologação (`https://titantrack-kong-homol.onrender.com`) e dev (`https://titantrack-kong-dev.onrender.com/docs`):
 
 ### 1. Teste de Rota de Negócio e Conectividade do BFF
 * **Método:** `POST` / `GET`
@@ -96,3 +96,8 @@ As requisições de teste e validação de arquitetura podem ser disparadas cont
 * **Método:** `GET`
 * **URL:** `https://titantrack-kong-homol.onrender.com/api/metrics`
 * **Resposta Esperada:** Dump de metadados do barramento contendo o status de concorrência (`"pending": X, "running": Y`), indicando que o Prometheus está coletando a performance interna do ecossistema.
+
+### 4. Teste do Ambiente DEV
+* **Método:** `GET`
+* **URL:** `https://titantrack-kong-dev.onrender.com/docs`
+* **Resposta Esperada:** Status `200 OK` e a liberação de outras novas rotas.
