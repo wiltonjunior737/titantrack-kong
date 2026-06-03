@@ -7,9 +7,10 @@ services:
     routes:
       - name: bff-routes-negocio
         paths:
-          - /api/auth       
-          - /api/aluno      
-          - /api/docs
+          - /aluno/historico-geral       
+          - /aluno/perfil-completo  
+          - /auth/login   
+          - /docs
         strip_path: false
 
   - name: kong-prometheus-service
@@ -17,7 +18,7 @@ services:
     routes:
       - name: kong-metrics-route
         paths:
-          - /api/metrics
+          - /metrics
 
 plugins:
   - name: prometheus
