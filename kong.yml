@@ -7,10 +7,10 @@ services:
     routes:
       - name: bff-routes-negocio
         paths:
-          - /aluno/historico-geral       
-          - /aluno/perfil-completo  
-          - /auth/login   
+          - /aluno
+          - /auth
           - /docs
+          - /openapi.json
         strip_path: false
 
   - name: kong-prometheus-service
@@ -27,5 +27,3 @@ plugins:
       status_code_metrics: true
       latency_metrics: true
       bandwidth_metrics: true
-
-# Forçando o calculo do quality gate na develop
